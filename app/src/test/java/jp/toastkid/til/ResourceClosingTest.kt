@@ -13,7 +13,7 @@ import java.io.InputStream
  */
 class ResourceClosingTest {
 
-    private var inputStream: InputStream? = null
+    private lateinit var inputStream: InputStream
 
     @BeforeEach
     fun setUp() {
@@ -23,22 +23,22 @@ class ResourceClosingTest {
     @Test
     fun test_try_finally() {
         try {
-            inputStream?.let { nonNullInputStream ->
+            inputStream.let { nonNullInputStream ->
                  println(Okio.buffer(Okio.source(nonNullInputStream)).readUtf8())
             }
         } finally {
-            inputStream?.close()
+            inputStream.close()
         }
 
         Assertions.assertThrows(
                 IOException::class.java,
-                { inputStream?.read(ByteArray(1), 0, 1) }
+                { inputStream.read(ByteArray(1), 0, 1) }
         )
     }
 
     @Test
     fun test_use() {
-        inputStream?.let { nonNullInputStream ->
+        inputStream.let { nonNullInputStream ->
             Okio.source(nonNullInputStream).use { println(Okio.buffer(it).readUtf8()) }
             Assertions.assertThrows(
                     IOException::class.java,
@@ -49,7 +49,7 @@ class ResourceClosingTest {
 
     @Test
     fun test_using() {
-        inputStream?.let { nonNullInputStream ->
+        inputStream.let { nonNullInputStream ->
             val text = Single.using<String, InputStream>(
                     { nonNullInputStream },
                     { Single.just<String>(Okio.buffer(Okio.source(it)).readUtf8()) },
