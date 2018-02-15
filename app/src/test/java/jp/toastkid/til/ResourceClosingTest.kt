@@ -38,29 +38,26 @@ class ResourceClosingTest {
 
     @Test
     fun test_use() {
-        inputStream.let { nonNullInputStream ->
-            Okio.source(nonNullInputStream).use { println(Okio.buffer(it).readUtf8()) }
-            Assertions.assertThrows(
-                    IOException::class.java,
-                    { nonNullInputStream.read(ByteArray(1), 0, 1) }
-            )
-        }
+        Okio.source(inputStream).use { println(Okio.buffer(it).readUtf8()) }
+        Assertions.assertThrows(
+                IOException::class.java,
+                { inputStream.read(ByteArray(1), 0, 1) }
+        )
     }
 
     @Test
     fun test_using() {
-        inputStream.let { nonNullInputStream ->
-            val text = Single.using<String, InputStream>(
-                    { nonNullInputStream },
-                    { Single.just<String>(Okio.buffer(Okio.source(it)).readUtf8()) },
-                    { it.close() }
-            )
-                    .blockingGet()
-            println(text)
-            Assertions.assertThrows(
-                    IOException::class.java,
-                    { nonNullInputStream.read(ByteArray(1), 0, 1) }
-            )
-        }
+        val text = Single.using<String, InputStream>(
+                { inputStream },
+                { Single.just<String>(Okio.buffer(Okio.source(it)).readUtf8()) },
+                { it.close() }
+        ).blockingGet()
+
+        println(text)
+
+        Assertions.assertThrows(
+                IOException::class.java,
+                { inputStream.read(ByteArray(1), 0, 1) }
+        )
     }
 }
