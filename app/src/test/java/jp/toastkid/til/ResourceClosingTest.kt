@@ -23,11 +23,13 @@ class ResourceClosingTest {
     @Test
     fun test_try_finally() {
         try {
-            inputStream.let { nonNullInputStream ->
-                 println(Okio.buffer(Okio.source(nonNullInputStream)).readUtf8())
-            }
+            println(Okio.buffer(Okio.source(inputStream)).readUtf8())
         } finally {
-            inputStream.close()
+            try {
+                inputStream.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
         }
 
         Assertions.assertThrows(
