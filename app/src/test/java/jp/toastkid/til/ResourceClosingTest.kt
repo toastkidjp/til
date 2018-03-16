@@ -47,7 +47,8 @@ class ResourceClosingTest {
 
     @Test
     fun test_use() {
-        Okio.source(inputStream).use { println(Okio.buffer(it).readUtf8()) }
+        val text: String = inputStream.use { Okio.buffer(Okio.source(it)).readUtf8() }
+        println(text)
         Assertions.assertThrows(
                 IOException::class.java,
                 { inputStream.read(ByteArray(1), 0, 1) }
